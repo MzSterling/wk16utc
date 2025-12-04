@@ -5,9 +5,8 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-
-env: 
-    python_version: 3.11
+env:
+  python_version: 3.11
 
 jobs: 
     build:
@@ -16,9 +15,14 @@ jobs:
             - uses: actions/checkout@v4
             - uses: actions/setup-python@v4  #install python on our runner
               with:
-                python-version: ${{env.python_version}} # or $python_version
-            - name: unit test #testing our code
-              run: pytest || true   #one of the unit test tools for python
+                  python-version: ${{env.python_version}} # or $python_version
+            - name: install pytest #testing our code
+              run: pip install -r requirements.txt
+            - name: unit test
+              run: pytest test.py
+
+
+              
             - name: Build image #we already have a docker file(ie template) in on Dokerfile
               
               run: |
@@ -31,7 +35,7 @@ jobs:
 
 
 
-                  
+
            
            
            

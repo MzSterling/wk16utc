@@ -16,10 +16,10 @@ jobs:
             - uses: actions/setup-python@v4  #install python on our runner
               with:
                   python-version: ${{env.python_version}} # or $python_version
-            - name: install pytest #testing our code
+            - name: install pytest and dependencies #testing our code
               run: pip install -r requirements.txt
             - name: unit test
-              run: pytest test.py
+              run: pytest 
 
 
               

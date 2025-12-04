@@ -37,7 +37,7 @@ jobs:
                 role-to-assume: ${{ secrets.ROLE_ARN }}
                 aws-region: ${{ env.AWS_REGION }}
 
-            - name: check credential
+            - name: check credentials and delete later
               run: aws s3 ls
 
             

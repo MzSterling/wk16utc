@@ -23,7 +23,7 @@ jobs:
         runs-on: ubuntu-latest
         steps: 
             - uses: actions/checkout@v4
-            - uses: actions/setup-python@v4  #install python on our runner
+            - uses: actions/setup-python@v4  #install python on runner
               with:
                   python-version: ${{env.python_version}} # or $python_version
             - name: install pytest and dependencies #testing our code
@@ -37,13 +37,13 @@ jobs:
                 role-to-assume: ${{ secrets.ROLE_ARN }}
                 aws-region: ${{ env.AWS_REGION }}
 
-            - name: check credentials and delete later
+            - name: check credentials  #delete later
               run: aws s3 ls
 
             
             
               
-            - name: Build image #we already have a docker file(ie template) in on Dokerfile
+            - name: Build image 
               
               run: |
                    docker build -t ${{secrets.REGISTRY_USER}}/wk16portcicd:${{github.run_number}} .

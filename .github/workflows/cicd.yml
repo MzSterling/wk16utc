@@ -19,7 +19,7 @@ jobs:
             - name: install pytest and dependencies #testing our code
               run: pip install -r requirements.txt
             - name: unit test
-              run: pytest 
+              run: pytest test.py
 
 
               

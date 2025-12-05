@@ -15,7 +15,10 @@ env:
   IMAGE_NAME: portfolio
   AWS_REGION: us-east-1
   ACCOUNT_ID: ${{secrets.ACCOUNT_ID}}
-  ECR_REPO: $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_NAME
+  # ECR_REPO: $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/dev
+  ECR_REPO: ${{ secrets.ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/dev
+  IMAGE_TAG: ${{ github.run_number }}
+  #IMAGE_TAG: ${{ github.sha }}
 
 
 jobs: 
@@ -26,7 +29,7 @@ jobs:
             - uses: actions/setup-python@v4  #install python on runner
               with:
                   python-version: ${{env.python_version}} # or $python_version
-            - name: install pytest and dependencies #testing our code
+            - name: install pytest and dependencies # for code testing 
               run: pip install -r requirements.txt
             - name: unit test
               run: pytest test.py
@@ -37,18 +40,43 @@ jobs:
                 role-to-assume: ${{ secrets.ROLE_ARN }}
                 aws-region: ${{ env.AWS_REGION }}
 
-            - name: check credentials  #delete later
-              run: aws s3 ls
+                    
+            - name: Login to Amazon ECR
+              id: login-ecr
+              uses: aws-actions/amazon-ecr-login@v1
 
-            
-            
-              
-            - name: Build image 
-              
+            - name: Build Docker image   # Build Docker image
               run: |
-                   docker build -t ${{secrets.REGISTRY_USER}}/wk16portcicd:${{github.run_number}} .
-                  # docker build -t ${{secrets.REGISTRY_USER}}/wk16portcicd .
+                docker build -t ${{ env.IMAGE_NAME }} .
 
+            
+            - name: Tag Docker image # Tag Docker image for ECR
+              run: |
+                 docker tag ${{ env.IMAGE_NAME }}:latest ${{ env.ECR_REPO }}:${{ env.IMAGE_TAG }}
+            # docker tag ${{ env.IMAGE_NAME }}:latest ${{ env.ECR_REPO }}:latest
+            # docker tag ${{ env.IMAGE_NAME }}:latest ${{ env.ECR_REPO }}:v2.0
+
+          
+            - name: Scan Docker image with Trivy     # Scan Docker image with Trivy
+              uses: aquasecurity/trivy-action@master
+              with:
+                  image-ref: ${{ env.ECR_REPO }}:latest
+                  format: table
+                  exit-code: '1' # fail workflow on critical/high vulnerabilities
+                  severity: CRITICAL,HIGH
+
+           
+            - name: Push Docker image to Amazon ECR  # Push Docker image to ECR
+              run: |
+                 docker push ${{ env.ECR_REPO }}:${{ env.IMAGE_TAG }}
+            #    docker push ${{ env.ECR_REPO }}:latest
+
+ 
+              
+
+
+
+          
            
            
            
